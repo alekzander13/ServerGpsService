@@ -1,17 +1,9 @@
 package gpslist
 
-/*
-package gps
-
 import (
-	"errors"
-	"fmt"
-	"gps_clients/server_gps_service/models"
-	"gps_clients/server_gps_service/utils"
-	"os"
-	"strings"
 	"sync"
-	"time"
+
+	"github.com/alekzander13/ServerGpsService/models"
 )
 
 type ListGPS struct {
@@ -47,6 +39,7 @@ func (l *ListGPS) GetGPSList() []models.GPSInfo {
 	return list
 }
 
+/*
 func Chk(g models.GPSInfo, d models.GPSData, c models.ChkParams) error {
 	if d.DateTime.Before(g.GPSD.DateTime) {
 		return errors.New("Последнее время меньше предидущего")
@@ -62,6 +55,7 @@ func Chk(g models.GPSInfo, d models.GPSData, c models.ChkParams) error {
 
 	return nil
 }
+
 
 func SaveToFileList(g models.GPSInfo, path string, info map[string][]models.GPSData) error {
 	if len(info) < 1 {
