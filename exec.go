@@ -13,17 +13,13 @@ import (
 var servers map[string]*server.Server
 
 func initServer() {
-	if db.DB != nil {
-		fmt.Println("db work")
-	} else {
-		dbInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
-			config.Config.HOSTDB, config.Config.PORTDB, config.Config.USERDB,
-			config.Config.PASSWORDDB, config.Config.DBNAME, config.Config.SSLMODE)
-		if err := db.Init(dbInfo); err != nil {
-			elog.Error(1, err.Error())
-		}
-
+	dbInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
+		config.Config.HOSTDB, config.Config.PORTDB, config.Config.USERDB,
+		config.Config.PASSWORDDB, config.Config.DBNAME, config.Config.SSLMODE)
+	if err := db.Init(dbInfo); err != nil {
+		elog.Error(1, err.Error())
 	}
+
 	servers = make(map[string]*server.Server)
 
 	for _, serv := range config.Config.Servers {

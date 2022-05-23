@@ -8,22 +8,22 @@ import (
 	_ "github.com/lib/pq"
 )
 
-var DB *sql.DB
+var database *sql.DB
 var mu sync.Mutex
 var once sync.Once
 
 func Init(info string) error {
 	var err error
 	once.Do(func() {
-		if DB, err = sql.Open("postgres", info); err != nil {
+		if database, err = sql.Open("postgres", info); err != nil {
 			return
 		}
 
-		if err = DB.Ping(); err != nil {
+		if err = database.Ping(); err != nil {
 			return
 		}
 
-		if err = createTables(DB); err != nil {
+		if err = createTables(); err != nil {
 			return
 		}
 	})
@@ -32,13 +32,13 @@ func Init(info string) error {
 }
 
 func Get(name string) error {
-	if err := DB.Ping(); err != nil {
+	if err := database.Ping(); err != nil {
 		return err
 	}
 
 	//var gps clients.GPSInfo
 
-	body, err := DB.Query("SELECT path, conn, error, info FROM srvGPS WHERE name = $1", name)
+	body, err := database.Query("SELECT path, conn, error, info FROM srvGPS WHERE name = $1", name)
 	if err != nil {
 		return err
 	}
@@ -60,8 +60,8 @@ func Get(name string) error {
 	return nil
 }
 
-func createTables(db *sql.DB) error {
-	if _, err := db.Exec(`CREATE TABLE IF NOT EXISTS srvGPS(` +
+func createTables() error {
+	if _, err := database.Exec(`CREATE TABLE IF NOT EXISTS srvGPS(` +
 		`id serial primary key, ` +
 		`name text not null unique, ` +
 		`inuse booling not null default true, ` +
