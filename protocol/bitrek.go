@@ -4,6 +4,10 @@ import "github.com/alekzander13/ServerGpsService/models"
 
 type Bitrek models.ProtocolModel
 
+func (T *Bitrek) GetName() string {
+	return T.GPS.Name
+}
+
 func (T *Bitrek) GetResponse() []byte {
 	return T.GPS.Response
 }

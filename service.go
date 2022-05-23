@@ -8,6 +8,8 @@ import (
 	"golang.org/x/sys/windows/svc"
 	"golang.org/x/sys/windows/svc/debug"
 	"golang.org/x/sys/windows/svc/eventlog"
+
+	mylog "github.com/alekzander13/ServerGpsService/mylog"
 )
 
 var elog debug.Log
@@ -61,6 +63,7 @@ loop:
 }
 
 func runService(name string, isDebug bool) {
+	mylog.IsDebug = isDebug
 	var err error
 	if isDebug {
 		elog = debug.New(name)

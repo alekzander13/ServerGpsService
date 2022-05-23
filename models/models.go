@@ -6,6 +6,7 @@ type Parcer interface {
 	ParcePacket([]byte) error
 	GetResponse() []byte
 	GetBadPacketByte() []byte
+	GetName() string
 }
 
 type ProtocolModel struct {

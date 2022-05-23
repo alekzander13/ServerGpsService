@@ -4,6 +4,10 @@ import "github.com/alekzander13/ServerGpsService/models"
 
 type GryphonM01 models.ProtocolModel
 
+func (T *GryphonM01) GetName() string {
+	return T.GPS.Name
+}
+
 func (T *GryphonM01) GetResponse() []byte {
 	return T.GPS.Response
 }
