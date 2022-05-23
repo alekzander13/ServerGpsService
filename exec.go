@@ -2,11 +2,10 @@ package main
 
 import (
 	"fmt"
+	"gps_clients/server_gps_service/config"
 	"time"
 
-	"gps_clients/server_gps_service/config"
-	"gps_clients/server_gps_service/db"
-	"gps_clients/server_gps_service/utils"
+	"github.com/alekzander13/ServerGpsService/utils"
 )
 
 var servers map[string]*Server
