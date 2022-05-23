@@ -1,13 +1,8 @@
 package models
 
-import "time"
-
-type Parcer interface {
-	ParcePacket([]byte) error
-	GetResponse() []byte
-	GetBadPacketByte() []byte
-	GetName() string
-}
+import (
+	"time"
+)
 
 type ProtocolModel struct {
 	Input  []byte
