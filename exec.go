@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"gps_clients/server_gps_service/config"
 	"time"
 
+	"github.com/alekzander13/ServerGpsService/config"
 	"github.com/alekzander13/ServerGpsService/utils"
 )
 
