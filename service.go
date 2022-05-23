@@ -8,8 +8,6 @@ import (
 	"golang.org/x/sys/windows/svc"
 	"golang.org/x/sys/windows/svc/debug"
 	"golang.org/x/sys/windows/svc/eventlog"
-
-	mylog "github.com/alekzander13/ServerGpsService/mylog"
 )
 
 var elog debug.Log
@@ -20,11 +18,8 @@ func (m *myservice) Execute(args []string, r <-chan svc.ChangeRequest, changes c
 	const cmdsAccepted = svc.AcceptStop | svc.AcceptShutdown | svc.AcceptPauseAndContinue
 	changes <- svc.Status{State: svc.StartPending}
 	changes <- svc.Status{State: svc.Running, Accepts: cmdsAccepted}
-	//startExecute()
 loop:
 	for {
-		//select {
-		/*case*/
 		c := <-r //:
 		switch c.Cmd {
 		case svc.Interrogate:
@@ -35,35 +30,23 @@ loop:
 			testOutput := strings.Join(args, "-")
 			testOutput += fmt.Sprintf("-%d", c.Context)
 			elog.Info(1, testOutput)
-			//AddToLog(GetProgramPath()+"-test.txt", testOutput)
 			stopServers()
 			break loop
 		case svc.Pause:
-			//stopExecute()
 			changes <- svc.Status{State: svc.Paused, Accepts: cmdsAccepted}
-			//ioutil.WriteFile("D:/test.txt", []byte("pause"), 0777)
-			//AddToLog(GetProgramPath()+"-test.txt", "start pause service")
 			stopServers()
-			//AddToLog(GetProgramPath()+"-test.txt", "service paused")
 		case svc.Continue:
 			changes <- svc.Status{State: svc.Running, Accepts: cmdsAccepted}
-			//startExecute()
-			//ioutil.WriteFile("D:/test.txt", []byte("continue"), 0777)
-			//AddToLog(GetProgramPath()+"-test.txt", "start continue service")
 			startServers()
-			//AddToLog(GetProgramPath()+"-test.txt", "service continued")
 		default:
 			elog.Error(1, fmt.Sprintf("unexpected control request #%d", c))
-			//AddToLog(GetProgramPath()+"-test.txt", fmt.Sprintf("unexpected control request #%d", c))
 		}
-		//}
 	}
 	changes <- svc.Status{State: svc.StopPending}
 	return
 }
 
 func runService(name string, isDebug bool) {
-	mylog.IsDebug = isDebug
 	var err error
 	if isDebug {
 		elog = debug.New(name)

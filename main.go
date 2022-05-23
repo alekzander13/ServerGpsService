@@ -10,6 +10,8 @@ import (
 	"github.com/alekzander13/ServerGpsService/utils"
 
 	"golang.org/x/sys/windows/svc"
+
+	mylog "github.com/alekzander13/ServerGpsService/mylog"
 )
 
 func usage(errmsg string) {
@@ -52,6 +54,7 @@ func main() {
 	cmd := strings.ToLower(os.Args[1])
 	switch cmd {
 	case "debug":
+		mylog.SetDebug(true)
 		runService(svcName, true)
 		return
 	case "install":
