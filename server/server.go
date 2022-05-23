@@ -12,6 +12,8 @@ import (
 	"time"
 
 	"github.com/alekzander13/ServerGpsService/gpslist"
+	"github.com/alekzander13/ServerGpsService/models"
+	"github.com/alekzander13/ServerGpsService/protocol"
 	"github.com/alekzander13/ServerGpsService/utils"
 )
 
@@ -170,14 +172,15 @@ func (srv *Server) handle(conn *conn) {
 	*/
 	input := make([]byte, srv.MaxReadBytes)
 
-	/*
-		gps := &models.ProtocolModel{}
-		gps.Protocol = srv.Protocol
-		gps.ChkPar.Sat = srv.MinSatel
-		gps.Path = srv.PathToSave
-		gps.UseDUT = srv.UseDUT
-		gps.UseTempC = srv.UseTempC
-	*/
+	params := models.ProtocolParams{
+		ChkPar:   models.ChkParams{Sat: srv.MinSatel},
+		Path:     srv.PathToSave,
+		UseDUT:   srv.UseDUT,
+		UseTempC: srv.UseTempC,
+	}
+
+	gps := protocol.NewProtocol(srv.Protocol, params)
+
 	for {
 		reqlen, err := conn.Read(input)
 		if err != nil {
@@ -227,30 +230,27 @@ func (srv *Server) handle(conn *conn) {
 				continue
 			}
 		} else {
-			/*
-				gps.Input = input[:reqlen]
-
-				err = clients.ParseData(gps, srv.listGPS)
-
-				if err != nil {
+			err = gps.ParcePacket(input[:reqlen])
+			if err != nil {
+				/*
 					elog.Error(1, fmt.Sprintf("%s\t%s<-%s - GPS: %s - %s",
 						time.Now().Local().Format("02.01.2006 15:04:05"),
 						utils.GetPortAdr(conn.Conn.LocalAddr().String()),
 						utils.GetPortAdr(conn.Conn.RemoteAddr().String()),
 						gps.GPS.Name,
 						err.Error()))
-					conn.Send(clients.GetBadPacketByte(gps))
-					continue
-				}
-
+				*/
+				conn.Send(gps.GetBadPacketByte())
+				continue
+			}
+			/*
 				elog.Info(1, fmt.Sprintf("%s\t%s<-%s - GPS: %s",
 					time.Now().Local().Format("02.01.2006 15:04:05"),
 					utils.GetPortAdr(conn.Conn.LocalAddr().String()),
 					utils.GetPortAdr(conn.Conn.RemoteAddr().String()),
 					gps.GPS.Name))
-
-				conn.Send(gps.GPS.CountData)
 			*/
+			conn.Send(gps.GetResponse())
 			continue
 		}
 	}

@@ -3,17 +3,22 @@ package models
 import "time"
 
 type Parcer interface {
-	ParcePacket() error
+	ParcePacket([]byte) error
+	GetResponse() []byte
 	GetBadPacketByte() []byte
 }
 
 type ProtocolModel struct {
-	Input    []byte
-	Path     string
-	ChkPar   ChkParams
-	GPS      GPSInfo
+	Input  []byte
+	GPS    GPSInfo
+	Params ProtocolParams
+}
+
+type ProtocolParams struct {
 	UseDUT   bool
 	UseTempC bool
+	Path     string
+	ChkPar   ChkParams
 }
 
 type GPSInfo struct {
