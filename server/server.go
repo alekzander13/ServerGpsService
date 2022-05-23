@@ -226,7 +226,7 @@ func (srv *Server) handle(conn *conn) {
 				continue
 			}
 		} else {
-			err = gps.ParcePacket(input[:reqlen])
+			err = gps.ParcePacket(input[:reqlen], srv.listGPS)
 			if err != nil {
 
 				mylog.Error(1, fmt.Sprintf("%s\t%s<-%s - GPS: %s - %s",

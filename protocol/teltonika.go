@@ -1,6 +1,9 @@
 package protocol
 
-import "github.com/alekzander13/ServerGpsService/models"
+import (
+	"github.com/alekzander13/ServerGpsService/gpslist"
+	"github.com/alekzander13/ServerGpsService/models"
+)
 
 type Teltonika models.ProtocolModel
 
@@ -16,6 +19,6 @@ func (T *Teltonika) GetBadPacketByte() []byte {
 	return []byte{0}
 }
 
-func (T *Teltonika) ParcePacket(input []byte) error {
+func (T *Teltonika) ParcePacket(input []byte, gpslist *gpslist.ListGPS) error {
 	return nil
 }

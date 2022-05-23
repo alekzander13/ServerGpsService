@@ -1,8 +1,11 @@
 package protocol
 
-import "github.com/alekzander13/ServerGpsService/models"
+import (
+	"github.com/alekzander13/ServerGpsService/models"
+	"github.com/alekzander13/ServerGpsService/parser"
+)
 
-func NewProtocol(name string, params models.ProtocolParams) models.Parcer {
+func NewProtocol(name string, params models.ProtocolParams) parser.Parcer {
 	switch name {
 	case "GryphonPro":
 		return &GryphonPro{Params: params}
