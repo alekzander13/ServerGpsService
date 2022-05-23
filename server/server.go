@@ -32,7 +32,7 @@ type Server struct {
 	conns      map[*conn]struct{}
 	allcons    int
 	mu         sync.Mutex
-	inShutdown bool
+	InShutdown bool
 }
 
 func (srv *Server) ListenAndServe() error {
@@ -58,7 +58,7 @@ func (srv *Server) ListenAndServe() error {
 	srv.listener = listen
 
 	for {
-		if srv.inShutdown {
+		if srv.InShutdown {
 			if len(srv.conns) == 0 {
 				return nil
 			}
@@ -67,7 +67,7 @@ func (srv *Server) ListenAndServe() error {
 
 		newConn, err := listen.Accept()
 		if err != nil {
-			if srv.inShutdown {
+			if srv.InShutdown {
 				continue
 			}
 			/*
@@ -126,7 +126,7 @@ func (srv *Server) CountAllConn() int {
 //Shutdown close server
 func (srv *Server) Shutdown() {
 	countForStop := 10
-	srv.inShutdown = true
+	srv.InShutdown = true
 	//elog.Info(1, srv.Addr+" is shutting down...")
 
 	srv.listener.Close()

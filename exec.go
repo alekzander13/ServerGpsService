@@ -5,10 +5,12 @@ import (
 	"time"
 
 	"github.com/alekzander13/ServerGpsService/config"
+	db "github.com/alekzander13/ServerGpsService/database"
+	"github.com/alekzander13/ServerGpsService/server"
 	"github.com/alekzander13/ServerGpsService/utils"
 )
 
-var servers map[string]*Server
+var servers map[string]*server.Server
 
 func initServer() {
 	if db.DB != nil {
@@ -22,7 +24,7 @@ func initServer() {
 		}
 
 	}
-	servers = make(map[string]*Server)
+	servers = make(map[string]*server.Server)
 
 	for _, serv := range config.Config.Servers {
 		if !serv.Use {
@@ -32,7 +34,7 @@ func initServer() {
 		ports, err := utils.MakePortsFromSlice(serv.Ports)
 		utils.ChkErrFatal(err)
 		for _, p := range ports {
-			srv := Server{
+			srv := server.Server{
 				Addr:         p,
 				IdleTimeout:  180 * time.Second,
 				MaxReadBytes: 10240, //2048
@@ -58,7 +60,7 @@ func stopServers() {
 
 func startServers() {
 	for _, s := range servers {
-		s.inShutdown = false
+		s.InShutdown = false
 		go s.ListenAndServe()
 	}
 }

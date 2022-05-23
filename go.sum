@@ -1,2 +1,12 @@
+github.com/alekzander13/ServerGpsService/config v0.0.0-20220523075443-954c34cc52d7 h1:hy50jlhpLG+qJMN3ErKFbZ9GU+lgYaIZO5IgEd2weKM=
+github.com/alekzander13/ServerGpsService/config v0.0.0-20220523075443-954c34cc52d7/go.mod h1:JwlOWHrcf9YtHcPlAuqCfHZ0IG71FF60mJEyP7VR1vI=
+github.com/alekzander13/ServerGpsService/database v0.0.0-20220523075443-954c34cc52d7 h1:45EM+k5SQVZvhIgeun932iQYzSWD9je4oyR6l2WIz0U=
+github.com/alekzander13/ServerGpsService/database v0.0.0-20220523075443-954c34cc52d7/go.mod h1:3xPE64dA1LfbK76uJ5UHtqxQGrdcifX2zBpt0JG4xv8=
+github.com/alekzander13/ServerGpsService/server v0.0.0-20220523075443-954c34cc52d7 h1:2injAtHcdquHN88spwcbKs/wBRepOiMzynhPeEky68Q=
+github.com/alekzander13/ServerGpsService/server v0.0.0-20220523075443-954c34cc52d7/go.mod h1:rgtDXsEed6jTOXpUBY9LcGCTNOy+/qt1Mr9mZi4njgo=
+github.com/alekzander13/ServerGpsService/utils v0.0.0-20220523075443-954c34cc52d7 h1:aBWGqJV28U/F4ixETZlNdwNBLf8FQtlC6kqE8jP7SvM=
+github.com/alekzander13/ServerGpsService/utils v0.0.0-20220523075443-954c34cc52d7/go.mod h1:8Hc1jAlRpOLioPnZ/8hTiGxY0zUG1suMfwfeSia85a0=
+github.com/lib/pq v1.10.6 h1:jbk+ZieJ0D7EVGJYpL9QTz7/YW6UHbmdnZWYyK5cdBs=
+github.com/lib/pq v1.10.6/go.mod h1:AlVN5x4E4T544tWzH6hKfbfQvm3HdbOxrmggDNAPY9o=
 golang.org/x/sys v0.0.0-20220520151302-bc2c85ada10a h1:dGzPydgVsqGcTRVwiLJ1jVbufYwmzD3LfVPLKsKg+0k=
 golang.org/x/sys v0.0.0-20220520151302-bc2c85ada10a/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
