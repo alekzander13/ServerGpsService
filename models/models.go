@@ -2,6 +2,11 @@ package models
 
 import "time"
 
+type Parcer interface {
+	ParcePacket() error
+	GetBadPacketByte() []byte
+}
+
 type ProtocolModel struct {
 	Input    []byte
 	Path     string
@@ -9,7 +14,6 @@ type ProtocolModel struct {
 	GPS      GPSInfo
 	UseDUT   bool
 	UseTempC bool
-	Protocol string
 }
 
 type GPSInfo struct {

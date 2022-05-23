@@ -11,6 +11,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/alekzander13/ServerGpsService/gpslist"
 	"github.com/alekzander13/ServerGpsService/utils"
 )
 
@@ -26,7 +27,7 @@ type Server struct {
 	UseTempC   bool
 	Protocol   string
 
-	//listGPS *gps.ListGPS
+	listGPS *gpslist.ListGPS
 
 	listener   net.Listener
 	conns      map[*conn]struct{}
@@ -41,7 +42,7 @@ func (srv *Server) ListenAndServe() error {
 		return errors.New("empty port server")
 	}
 
-	//srv.listGPS = gps.NewGPSList()
+	srv.listGPS = gpslist.NewGPSList()
 
 	listen, err := net.Listen("tcp", ":"+srv.Addr)
 	if err != nil {
@@ -200,8 +201,7 @@ func (srv *Server) handle(conn *conn) {
 					utils.GetPortAdr(conn.Conn.LocalAddr().String()),
 					utils.GetPortAdr(conn.Conn.RemoteAddr().String())))
 			*/
-			//list := srv.listGPS.GetGPSList()
-			var list string
+			list := srv.listGPS.GetGPSList()
 			body, err := json.Marshal(list)
 			if err != nil {
 				conn.Send([]byte(fmt.Sprintf("{\"error\":\"%s\"}", err.Error())))

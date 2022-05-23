@@ -1,2 +1,6 @@
+github.com/alekzander13/ServerGpsService/gpslist v0.0.0-20220523085345-5efc4fe14d90 h1:7610HfZNAuTCfAc8VxPQA5sJIPoTMikNHiq1ANRz4Nw=
+github.com/alekzander13/ServerGpsService/gpslist v0.0.0-20220523085345-5efc4fe14d90/go.mod h1:pxmWxYUG2H5kUWLrvQcosmpAfdLqUr2qoKYQRsCL9o4=
+github.com/alekzander13/ServerGpsService/models v0.0.0-20220523084809-a3b624797354 h1:R7uDuLRE8xtRqxD4HNqOs+/wd1+++Bm7wBUIfUJJdk8=
+github.com/alekzander13/ServerGpsService/models v0.0.0-20220523084809-a3b624797354/go.mod h1:lZlhOz8xMzl3NKzYQ4PYnJ/bY35nXfol4SRNmFKp5Pc=
 github.com/alekzander13/ServerGpsService/utils v0.0.0-20220523070308-fa49bd8e0422 h1:2lSD1+CiReFcUWqhwUkbAArPkLx9ArTokuIz5fkvSn4=
 github.com/alekzander13/ServerGpsService/utils v0.0.0-20220523070308-fa49bd8e0422/go.mod h1:8Hc1jAlRpOLioPnZ/8hTiGxY0zUG1suMfwfeSia85a0=
