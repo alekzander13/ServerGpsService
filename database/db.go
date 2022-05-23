@@ -12,8 +12,11 @@ var database *sql.DB
 var mu sync.Mutex
 var once sync.Once
 
+var useDB bool
+
 func Init(info string) error {
 	var err error
+	useDB = false
 	once.Do(func() {
 		if database, err = sql.Open("postgres", info); err != nil {
 			return
@@ -26,6 +29,8 @@ func Init(info string) error {
 		if err = createTables(); err != nil {
 			return
 		}
+
+		useDB = true
 	})
 
 	return err
@@ -33,6 +38,7 @@ func Init(info string) error {
 
 func Get(name string) error {
 	if err := database.Ping(); err != nil {
+		useDB = false
 		return err
 	}
 
@@ -65,9 +71,9 @@ func createTables() error {
 		`id serial primary key, ` +
 		`name text not null unique, ` +
 		`inuse booling not null default true, ` +
-		`path text not null default 'D:/UPC', ` +
+		`path text, ` +
 		`conn integer not null default 0, ` +
-		`error text, ` +
+		`error booling not null default false, ` +
 		`info text);`); err != nil {
 		return err
 	}
