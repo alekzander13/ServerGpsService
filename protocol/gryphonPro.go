@@ -9,9 +9,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alekzander13/ServerGpsService/gpslist"
-	"github.com/alekzander13/ServerGpsService/models"
-	"github.com/alekzander13/ServerGpsService/utils"
+	"ServerGpsService/gpslist"
+	"ServerGpsService/models"
+	"ServerGpsService/mylog"
+	"ServerGpsService/utils"
 )
 
 type GryphonPro models.ProtocolModel
@@ -29,7 +30,7 @@ func (T *GryphonPro) GetBadPacketByte() []byte {
 	return b
 }
 
-func (T *GryphonPro) ReturnError(err string) error {
+func (T *GryphonPro) returnError(err string) error {
 	T.GPS.LastError = err
 	return errors.New(T.GPS.LastError)
 }
@@ -38,24 +39,36 @@ func (T *GryphonPro) ParcePacket(input []byte, gpslist *gpslist.ListGPS) error {
 	defer func() {
 		if recMes := recover(); recMes != nil {
 			utils.AddToLog(utils.GetProgramPath()+"-error.txt", recMes)
+		} else {
+			/*
+				if temp, _, ok := gpslist.GetGPS(T.GPS.Name); ok {
+					if T.GPS.GPSD.DateTime.After(temp.GPSD.DateTime) {
+						gpslist.SetGPS(T.GPS)
+					}
+				} else {
+					gpslist.SetGPS(T.GPS)
+				}
+			*/
+			gpslist.SetGPS(T.GPS)
 		}
 	}()
+	T.Input = input
 	T.GPS.LastConnect = time.Now().Local().Format("02.01.2006 15:04:05")
 	T.GPS.LastInfo = ""
 	T.GPS.LastError = "no data"
 	T.GPS.Response, _ = hex.DecodeString("AA14FF16")
 
 	h := crc32.NewIEEE()
-	h.Write(T.Input[0:32])
+	h.Write(T.Input[0 : len(T.Input)-4])
 	hash := h.Sum32()
 
-	hashOrig, err := strconv.ParseUint(hex.EncodeToString(T.Input[len(T.Input)-4:len(T.Input)]), 16, 32)
+	hashOrig, err := strconv.ParseUint(hex.EncodeToString(T.Input[len(T.Input)-4:]), 16, 32)
 	if err != nil {
-		T.ReturnError(err.Error())
+		return T.returnError(err.Error())
 	}
 
 	if hash != uint32(hashOrig) {
-		T.ReturnError("crc32 don`t match")
+		return T.returnError("crc32 don`t match")
 	}
 
 	tDP := hex.EncodeToString(T.Input[0:4])
@@ -68,12 +81,32 @@ func (T *GryphonPro) ParcePacket(input []byte, gpslist *gpslist.ListGPS) error {
 				T.GPS.Name += string(buf[i] + 48)
 			}
 		}
+
 	case "aa0014bb":
+		//load info from list
+		if temp, path, ok := gpslist.GetGPS(T.GPS.Name); ok {
+			if path != "" {
+				T.Params.Path = path
+			}
+			T.GPS.GPSD = temp.GPSD
+		}
 		return T.parceGPSData()
 	case "aa0014cc":
 		return T.parceODPData()
+	case "aa0014ee":
+		T.GPS.Response, _ = hex.DecodeString("AA14FF17")
+		/*
+			data := string(T.Input[6 : len(T.Input)-4])
+			fmt.Println(data)
+			if string(data) == `{"conf_osystem":{"default":{"get":["datetime"]}}}` {
+				strUnix := fmt.Sprintf("%d", time.Now().UTC().Unix())
+				response := `{"conf_osystem":{"default":{"set":{"datetime":"` + strUnix + `"}}}}`
+				fmt.Println(response)
+				T.GPS.Response = []byte(response)
+			}
+		*/
 	default:
-		fmt.Println(tDP)
+		mylog.Info(99, "G pro pac: "+tDP)
 
 	}
 
@@ -82,7 +115,7 @@ func (T *GryphonPro) ParcePacket(input []byte, gpslist *gpslist.ListGPS) error {
 
 func (T *GryphonPro) parceGPSData() error {
 	input := T.Input[4 : len(T.Input)-4]
-	T.GPS.LastError = ""
+	T.GPS.LastError = "no data"
 	T.GPS.LastInfo = ""
 
 	countData := int(input[0])
@@ -229,7 +262,7 @@ func (T *GryphonPro) parceGPSData() error {
 			T.GPS.LastError = err.Error()
 		}
 
-		T.GPS.LastInfo = gpsData.DateTime.Format("02.01.06 ") + GPSDataToString(T.GPS.GPSD)
+		T.GPS.LastInfo = gpsData.DateTime.Format("02.01.06 ") + GPSDataToString(gpsData)
 
 		if T.GPS.LastError != "" || err != nil {
 			var errGPS models.GPSInfo

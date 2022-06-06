@@ -1,7 +1,10 @@
 package database
 
 import (
+	"ServerGpsService/models"
 	"database/sql"
+	"strings"
+	"time"
 
 	"sync"
 
@@ -12,11 +15,16 @@ var database *sql.DB
 var mu sync.Mutex
 var once sync.Once
 
-var useDB bool
+var dbName string
 
-func Init(info string) error {
+var tName string = "gpsList"
+
+var UseDB bool
+
+func Init(info, name string) error {
+	dbName = name
 	var err error
-	useDB = false
+	UseDB = false
 	once.Do(func() {
 		if database, err = sql.Open("postgres", info); err != nil {
 			return
@@ -30,50 +38,73 @@ func Init(info string) error {
 			return
 		}
 
-		useDB = true
+		UseDB = true
 	})
 
 	return err
 }
 
-func Get(name string) error {
+func Set(gps models.GPSInfo) error {
 	if err := database.Ping(); err != nil {
-		useDB = false
+		UseDB = false
 		return err
 	}
+	defer mu.Unlock()
+	mu.Lock()
 
-	//var gps clients.GPSInfo
+	gps.GPSD.DateTime.Unix()
 
-	body, err := database.Query("SELECT path, conn, error, info FROM srvGPS WHERE name = $1", name)
+	tx, err := database.Begin()
 	if err != nil {
 		return err
+	}
+	defer tx.Rollback()
+	var id int64
+	info := gps.GPSD.DateTime.Format("02.01.06 150405;")
+	err = tx.QueryRow(`INSERT INTO gpsList (name, conn, info) VALUES ($1, $2, $3) ON CONFLICT (name)
+		DO UPDATE SET conn = $2, info = $3 RETURNING id`,
+		gps.Name, gps.LastConnect, info).Scan(&id)
+	if err != nil {
+		return err
+	}
+	return tx.Commit()
+}
+
+func Get(name string) (models.GPSInfo, string, error) {
+	if err := database.Ping(); err != nil {
+		UseDB = false
+		return models.GPSInfo{}, "", err
+	}
+
+	var gps models.GPSInfo
+	var path, info string
+
+	body, err := database.Query("SELECT path, info FROM gpsList WHERE name = $1", name)
+	if err != nil {
+		return models.GPSInfo{}, "", err
 	}
 	defer body.Close()
 
 	for body.Next() {
-		var path, errstr, info string
-		var lastconn int64
-		err = body.Scan(&path, &lastconn, &errstr, &info)
+		err = body.Scan(&path, &info)
 		if err != nil {
-			return err
+			return models.GPSInfo{}, "", err
 		}
-		//gps.LastConnect = time.Unix(lastconn, 0).Format("02.01.2006 15:04:05")
-		//gps.LastError = errstr
-		//gps.LastInfo = info
-
+		var gpsD models.GPSData
+		tt := strings.Split(info, ";")
+		gpsD.DateTime, _ = time.Parse("02.01.06 150405", tt[0])
+		gps.GPSD = gpsD
 	}
 
-	return nil
+	return gps, path, nil
 }
 
 func createTables() error {
-	if _, err := database.Exec(`CREATE TABLE IF NOT EXISTS srvGPS(` +
+	if _, err := database.Exec(`CREATE TABLE IF NOT EXISTS gpsList (` +
 		`id serial primary key, ` +
 		`name text not null unique, ` +
-		`inuse booling not null default true, ` +
 		`path text, ` +
-		`conn integer not null default 0, ` +
-		`error booling not null default false, ` +
+		`conn text, ` +
 		`info text);`); err != nil {
 		return err
 	}

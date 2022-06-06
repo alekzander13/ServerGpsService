@@ -7,9 +7,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alekzander13/ServerGpsService/models"
-	"github.com/alekzander13/ServerGpsService/parser"
-	"github.com/alekzander13/ServerGpsService/utils"
+	"ServerGpsService/models"
+	"ServerGpsService/parser"
+	"ServerGpsService/utils"
 )
 
 func NewProtocol(name string, params models.ProtocolParams) parser.Parcer {
@@ -112,7 +112,7 @@ func SaveErrorList(g models.GPSInfo, path string, sl []models.GPSInfo) error {
 	strToSave := ""
 
 	for _, v := range sl {
-		strToSave += fmt.Sprintf("-%s \r\n%s\r\n%s %s\n",
+		strToSave += fmt.Sprintf("-%s \r\n%s\r\n%s %s",
 			v.LastError,
 			time.Now().Local().Format("02.01.2006 15:04:05"),
 			v.GPSD.DateTime.Format("02.01.06"),

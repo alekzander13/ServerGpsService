@@ -11,12 +11,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/alekzander13/ServerGpsService/gpslist"
-	"github.com/alekzander13/ServerGpsService/models"
-	"github.com/alekzander13/ServerGpsService/protocol"
-	"github.com/alekzander13/ServerGpsService/utils"
-
-	mylog "github.com/alekzander13/ServerGpsService/mylog"
+	"ServerGpsService/gpslist"
+	"ServerGpsService/models"
+	"ServerGpsService/mylog"
+	"ServerGpsService/protocol"
+	"ServerGpsService/utils"
 )
 
 type Server struct {
@@ -54,9 +53,7 @@ func (srv *Server) ListenAndServe() error {
 		return err
 	}
 
-	mylog.Info(1, fmt.Sprintf("%s\t tcp client run on %s",
-		time.Now().Local().Format("02.01.2006 15:04:05"),
-		srv.Addr))
+	mylog.Info(1, fmt.Sprintf("tcp client run on %s", srv.Addr))
 
 	defer listen.Close()
 
@@ -76,9 +73,7 @@ func (srv *Server) ListenAndServe() error {
 				continue
 			}
 
-			mylog.Error(1, fmt.Sprintf("%s\t error listen: %s",
-				time.Now().Local().Format("02.01.2006 15:04:05"),
-				srv.Addr+": "+err.Error()))
+			mylog.Error(1, fmt.Sprintf("error listen: %s", srv.Addr+": "+err.Error()))
 
 			//AddToLog(GetProgramPath()+"-error.txt", fmt.Sprint(srv.inShutdown)+" - "+err.Error())
 			continue
@@ -156,16 +151,14 @@ func (srv *Server) Shutdown() {
 
 func (srv *Server) handle(conn *conn) {
 	defer func() {
-		mylog.Info(1, fmt.Sprintf("%s\t%s<-%s - connect close",
-			time.Now().Local().Format("02.01.2006 15:04:05"),
+		mylog.Info(1, fmt.Sprintf("%s<-%s - connect close",
 			utils.GetPortAdr(conn.Conn.LocalAddr().String()),
 			utils.GetPortAdr(conn.Conn.RemoteAddr().String())))
 		conn.Close()
 		srv.deleteConn(conn)
 	}()
 
-	mylog.Info(1, fmt.Sprintf("%s\t%s<-%s - new connect",
-		time.Now().Local().Format("02.01.2006 15:04:05"),
+	mylog.Info(1, fmt.Sprintf("%s<-%s - new connect",
 		utils.GetPortAdr(conn.Conn.LocalAddr().String()),
 		utils.GetPortAdr(conn.Conn.RemoteAddr().String())))
 
@@ -184,8 +177,7 @@ func (srv *Server) handle(conn *conn) {
 		reqlen, err := conn.Read(input)
 		if err != nil {
 			if err != io.EOF {
-				mylog.Error(1, fmt.Sprintf("%s\t%s<-%s - GPS: %s - %s",
-					time.Now().Local().Format("02.01.2006 15:04:05"),
+				mylog.Error(1, fmt.Sprintf("%s<-%s - GPS: %s - %s",
 					utils.GetPortAdr(conn.Conn.LocalAddr().String()),
 					utils.GetPortAdr(conn.Conn.RemoteAddr().String()),
 					gps.GetName(), err.Error()))
@@ -195,8 +187,7 @@ func (srv *Server) handle(conn *conn) {
 
 		if strings.HasPrefix(string(input[:reqlen]), "getinfo") {
 
-			mylog.Info(1, fmt.Sprintf("%s\t%s<-%s - get info",
-				time.Now().Local().Format("02.01.2006 15:04:05"),
+			mylog.Info(1, fmt.Sprintf("%s<-%s - get info",
 				utils.GetPortAdr(conn.Conn.LocalAddr().String()),
 				utils.GetPortAdr(conn.Conn.RemoteAddr().String())))
 
@@ -227,10 +218,9 @@ func (srv *Server) handle(conn *conn) {
 			}
 		} else {
 			err = gps.ParcePacket(input[:reqlen], srv.listGPS)
-			if err != nil {
 
-				mylog.Error(1, fmt.Sprintf("%s\t%s<-%s - GPS: %s - %s",
-					time.Now().Local().Format("02.01.2006 15:04:05"),
+			if err != nil {
+				mylog.Error(1, fmt.Sprintf("%s<-%s - GPS: %s - %s",
 					utils.GetPortAdr(conn.Conn.LocalAddr().String()),
 					utils.GetPortAdr(conn.Conn.RemoteAddr().String()),
 					gps.GetName(), err.Error()))
@@ -239,8 +229,7 @@ func (srv *Server) handle(conn *conn) {
 				continue
 			}
 
-			mylog.Info(1, fmt.Sprintf("%s\t%s<-%s - GPS: %s",
-				time.Now().Local().Format("02.01.2006 15:04:05"),
+			mylog.Info(1, fmt.Sprintf("%s<-%s - GPS: %s",
 				utils.GetPortAdr(conn.Conn.LocalAddr().String()),
 				utils.GetPortAdr(conn.Conn.RemoteAddr().String()),
 				gps.GetName()))

@@ -6,12 +6,11 @@ import (
 	"os"
 	"strings"
 
-	"github.com/alekzander13/ServerGpsService/config"
-	"github.com/alekzander13/ServerGpsService/utils"
+	"ServerGpsService/config"
+	"ServerGpsService/mylog"
+	"ServerGpsService/utils"
 
 	"golang.org/x/sys/windows/svc"
-
-	mylog "github.com/alekzander13/ServerGpsService/mylog"
 )
 
 func usage(errmsg string) {

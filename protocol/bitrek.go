@@ -8,10 +8,10 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/alekzander13/ServerGpsService/gpslist"
-	"github.com/alekzander13/ServerGpsService/hash"
-	"github.com/alekzander13/ServerGpsService/models"
-	"github.com/alekzander13/ServerGpsService/utils"
+	"ServerGpsService/gpslist"
+	"ServerGpsService/hash"
+	"ServerGpsService/models"
+	"ServerGpsService/utils"
 )
 
 type Bitrek models.ProtocolModel
@@ -37,8 +37,20 @@ func (T *Bitrek) ParcePacket(input []byte, gpslist *gpslist.ListGPS) error {
 	defer func() {
 		if recMes := recover(); recMes != nil {
 			utils.AddToLog(utils.GetProgramPath()+"-error.txt", recMes)
+		} else {
+			gpslist.SetGPS(T.GPS)
+			/*
+				if temp, _, ok := gpslist.GetGPS(T.GPS.Name); ok {
+					if T.GPS.GPSD.DateTime.After(temp.GPSD.DateTime) {
+						gpslist.SetGPS(T.GPS)
+					}
+				} else {
+					gpslist.SetGPS(T.GPS)
+				}
+			*/
 		}
 	}()
+	T.Input = input
 	T.GPS.LastConnect = time.Now().Local().Format("02.01.2006 15:04:05")
 	T.GPS.LastInfo = ""
 	T.GPS.LastError = "no data"
@@ -101,21 +113,22 @@ func (T *Bitrek) ParcePacket(input []byte, gpslist *gpslist.ListGPS) error {
 		return T.returnError("bad codecID: " + CodecID)
 	}
 
-	//load info from list or db
-
-	T.GPS.GPSD = gpslist.GetGPS(T.GPS.Name)
-
-	err = T.parceGPSData8Codec()
-
-	if err == nil {
-
+	//load info from list
+	if temp, path, ok := gpslist.GetGPS(T.GPS.Name); ok {
+		if path != "" {
+			T.Params.Path = path
+		}
+		T.GPS.GPSD = temp.GPSD
 	}
 
-	return err
+	T.Input = T.Input[1:]
+
+	return T.parceGPSData8Codec()
 }
 
 func (T *Bitrek) parceGPSData8Codec() error {
-	input := T.Input[1:]
+	input := T.Input
+
 	T.GPS.LastError = ""
 	T.GPS.LastInfo = ""
 

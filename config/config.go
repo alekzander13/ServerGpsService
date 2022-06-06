@@ -5,12 +5,13 @@ import (
 	"io/ioutil"
 	"log"
 
-	"github.com/alekzander13/ServerGpsService/utils"
+	"ServerGpsService/utils"
 )
 
 var Config Configuration
 
 type Configuration struct {
+	Comment     string         `json:"_comment"`
 	ServiceName string         `json:"serivceName"`
 	DescService string         `json:"descService"`
 	Servers     []ServerConfig `json:"servers"`
@@ -34,6 +35,7 @@ type ServerConfig struct {
 }
 
 func setstandartconfig() {
+	Config.Comment = "GryphonPro, GryphonM01, Teltonika, Bitrek, Cargo, Wialon"
 	Config.ServiceName = "go_server_teltonika"
 	Config.DescService = "TLKA gps-server service"
 	var serv ServerConfig

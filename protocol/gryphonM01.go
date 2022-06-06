@@ -7,9 +7,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alekzander13/ServerGpsService/gpslist"
-	"github.com/alekzander13/ServerGpsService/models"
-	"github.com/alekzander13/ServerGpsService/utils"
+	"ServerGpsService/gpslist"
+	"ServerGpsService/models"
+	"ServerGpsService/utils"
 )
 
 type GryphonM01 models.ProtocolModel
@@ -35,8 +35,20 @@ func (T *GryphonM01) ParcePacket(input []byte, gpslist *gpslist.ListGPS) error {
 	defer func() {
 		if recMes := recover(); recMes != nil {
 			utils.AddToLog(utils.GetProgramPath()+"-error.txt", recMes)
+		} else {
+			gpslist.SetGPS(T.GPS)
+			/*
+				if temp, _, ok := gpslist.GetGPS(T.GPS.Name); ok {
+					if T.GPS.GPSD.DateTime.After(temp.GPSD.DateTime) {
+						gpslist.SetGPS(T.GPS)
+					}
+				} else {
+					gpslist.SetGPS(T.GPS)
+				}
+			*/
 		}
 	}()
+	T.Input = input
 	T.GPS.LastConnect = time.Now().Local().Format("02.01.2006 15:04:05")
 	T.GPS.LastInfo = ""
 	T.GPS.LastError = "no data"
@@ -53,6 +65,14 @@ func (T *GryphonM01) ParcePacket(input []byte, gpslist *gpslist.ListGPS) error {
 
 	T.GPS.Name = v
 
+	//load info from list
+	if temp, path, ok := gpslist.GetGPS(T.GPS.Name); ok {
+		if path != "" {
+			T.Params.Path = path
+		}
+		T.GPS.GPSD = temp.GPSD
+	}
+
 	v, ok = dataMap["d"]
 	if ok {
 		return T.parceGPSData(v)
@@ -62,12 +82,13 @@ func (T *GryphonM01) ParcePacket(input []byte, gpslist *gpslist.ListGPS) error {
 }
 
 func (T *GryphonM01) parceForm() (form map[string]string, err error) {
-	defer func() {
-		if errMsg := recover(); errMsg != nil {
-			err = fmt.Errorf("panic parce data: %v", errMsg)
-		}
-	}()
-
+	/*
+		defer func() {
+			if errMsg := recover(); errMsg != nil {
+				err = fmt.Errorf("panic parce data: %v", errMsg)
+			}
+		}()
+	*/
 	form = make(map[string]string)
 
 	ss := strings.Split(strings.TrimSpace(string(T.Input)), "&")

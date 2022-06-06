@@ -3,7 +3,10 @@ package gpslist
 import (
 	"sync"
 
-	"github.com/alekzander13/ServerGpsService/models"
+	db "ServerGpsService/database"
+	"ServerGpsService/models"
+
+	"ServerGpsService/mylog"
 )
 
 type ListGPS struct {
@@ -20,13 +23,31 @@ func NewGPSList() *ListGPS {
 func (l *ListGPS) SetGPS(g models.GPSInfo) {
 	defer l.mu.Unlock()
 	l.mu.Lock()
+	if g.Name == "" {
+		return
+	}
 	l.list[g.Name] = g
+	if db.UseDB {
+		if err := db.Set(g); err != nil {
+			mylog.Error(1, err.Error())
+		}
+	}
 }
 
-func (l *ListGPS) GetGPS(name string) models.GPSData {
+func (l *ListGPS) GetGPS(name string) (models.GPSInfo, string, bool) {
 	defer l.mu.Unlock()
 	l.mu.Lock()
-	return l.list[name].GPSD
+	path := ""
+	r, ok := l.list[name]
+	if !ok {
+		var err error
+		r, path, err = db.Get(name)
+		if err == nil {
+			ok = true
+			l.list[name] = r
+		}
+	}
+	return r, path, ok
 }
 
 func (l *ListGPS) GetGPSList() []models.GPSInfo {

@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/alekzander13/ServerGpsService/config"
-	db "github.com/alekzander13/ServerGpsService/database"
-	"github.com/alekzander13/ServerGpsService/server"
-	"github.com/alekzander13/ServerGpsService/utils"
+	"ServerGpsService/config"
+	db "ServerGpsService/database"
+	"ServerGpsService/server"
+	"ServerGpsService/utils"
 )
 
 var servers map[string]*server.Server
@@ -16,7 +16,7 @@ func initServer() {
 	dbInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
 		config.Config.HOSTDB, config.Config.PORTDB, config.Config.USERDB,
 		config.Config.PASSWORDDB, config.Config.DBNAME, config.Config.SSLMODE)
-	if err := db.Init(dbInfo); err != nil {
+	if err := db.Init(dbInfo, config.Config.DBNAME); err != nil {
 		elog.Error(1, err.Error())
 	}
 

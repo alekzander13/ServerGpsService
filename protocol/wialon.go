@@ -10,9 +10,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alekzander13/ServerGpsService/gpslist"
-	"github.com/alekzander13/ServerGpsService/models"
-	"github.com/alekzander13/ServerGpsService/utils"
+	"ServerGpsService/gpslist"
+	"ServerGpsService/models"
+	"ServerGpsService/utils"
 )
 
 type Wialon models.ProtocolModel
@@ -35,20 +35,21 @@ func (T *Wialon) ParcePacket(input []byte, gpslist *gpslist.ListGPS) error {
 			utils.AddToLog(utils.GetProgramPath()+"-error.txt", recMes)
 		}
 	}()
+	T.Input = input
 	T.GPS.LastConnect = time.Now().Local().Format("02.01.2006 15:04:05")
 	T.GPS.LastInfo = ""
 	T.GPS.LastError = "no data"
 
 	if strings.HasPrefix(string(T.Input), "#") {
-		T.wialonIPS()
+		T.wialonIPS(gpslist)
 	} else {
-		T.wialonRetranslator_v1()
+		T.wialonRetranslator_v1(gpslist)
 	}
 
 	return nil
 }
 
-func (T *Wialon) wialonIPS() {
+func (T *Wialon) wialonIPS(gpslist *gpslist.ListGPS) {
 	body := T.Input
 
 	bodySlice := strings.Split(string(body), "\r\n")
@@ -72,6 +73,13 @@ func (T *Wialon) wialonIPS() {
 		case "L":
 			s := strings.Split(slice[2], ";")
 			T.GPS.Name = s[0]
+			//load info from list
+			if temp, path, ok := gpslist.GetGPS(T.GPS.Name); ok {
+				if path != "" {
+					T.Params.Path = path
+				}
+				T.GPS.GPSD = temp.GPSD
+			}
 		case "D", "SD":
 			s := strings.Split(slice[2], ";")
 
@@ -111,6 +119,7 @@ func (T *Wialon) wialonIPS() {
 			} else {
 				//save to file
 				T.GPS.GPSD = gpsData
+				gpslist.SetGPS(T.GPS)
 				if err := SaveToFile(T.GPS, T.Params.Path); err != nil {
 					utils.ChkErrFatal(err)
 				}
@@ -119,7 +128,7 @@ func (T *Wialon) wialonIPS() {
 	}
 }
 
-func (T *Wialon) wialonRetranslator_v1() {
+func (T *Wialon) wialonRetranslator_v1(gpslist *gpslist.ListGPS) {
 	body := T.Input
 
 	bodySlice := strings.Split(string(body), "0BBB")
@@ -145,6 +154,13 @@ func (T *Wialon) wialonRetranslator_v1() {
 
 			if r, err := hex.DecodeString(string(buf)); err == nil {
 				T.GPS.Name = string(r)
+				//load info from list
+				if temp, path, ok := gpslist.GetGPS(T.GPS.Name); ok {
+					if path != "" {
+						T.Params.Path = path
+					}
+					T.GPS.GPSD = temp.GPSD
+				}
 			} else {
 				T.GPS.LastError = "error gps name wialon retranslator"
 				return
@@ -240,6 +256,7 @@ func (T *Wialon) wialonRetranslator_v1() {
 	} else {
 		//save to file
 		T.GPS.GPSD = gpsData
+		gpslist.SetGPS(T.GPS)
 		if err := SaveToFile(T.GPS, T.Params.Path); err != nil {
 			utils.ChkErrFatal(err)
 		}

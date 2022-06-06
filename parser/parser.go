@@ -1,6 +1,6 @@
 package parser
 
-import "github.com/alekzander13/ServerGpsService/gpslist"
+import "ServerGpsService/gpslist"
 
 type Parcer interface {
 	ParcePacket([]byte, *gpslist.ListGPS) error
