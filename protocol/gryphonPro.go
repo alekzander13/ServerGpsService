@@ -82,6 +82,14 @@ func (T *GryphonPro) ParcePacket(input []byte, gpslist *gpslist.ListGPS) error {
 			}
 		}
 
+		//load info from list
+		if temp, path, ok := gpslist.GetGPS(T.GPS.Name); ok {
+			if path != "" {
+				T.Params.Path = path
+			}
+			T.GPS.GPSD = temp.GPSD
+		}
+
 	case "aa0014bb":
 		//load info from list
 		if temp, path, ok := gpslist.GetGPS(T.GPS.Name); ok {

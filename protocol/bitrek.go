@@ -70,6 +70,14 @@ func (T *Bitrek) ParcePacket(input []byte, gpslist *gpslist.ListGPS) error {
 			T.GPS.Name += string(T.Input[i])
 		}
 
+		//load info from list
+		if temp, path, ok := gpslist.GetGPS(T.GPS.Name); ok {
+			if path != "" {
+				T.Params.Path = path
+			}
+			T.GPS.GPSD = temp.GPSD
+		}
+
 		T.GPS.Response = []byte{1}
 		T.GPS.LastError = ""
 		return nil
