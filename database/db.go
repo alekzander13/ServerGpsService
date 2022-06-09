@@ -3,6 +3,7 @@ package database
 import (
 	"ServerGpsService/models"
 	"database/sql"
+	"fmt"
 	"strings"
 	"time"
 
@@ -54,20 +55,14 @@ func Set(gps models.GPSInfo) error {
 
 	gps.GPSD.DateTime.Unix()
 
-	tx, err := database.Begin()
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-	var id int64
+	//var id int64
 	info := gps.GPSD.DateTime.Format("02.01.06 150405;")
-	err = tx.QueryRow(`INSERT INTO gpsList (name, conn, info) VALUES ($1, $2, $3) ON CONFLICT (name)
-		DO UPDATE SET conn = $2, info = $3 RETURNING id`,
-		gps.Name, gps.LastConnect, info).Scan(&id)
-	if err != nil {
-		return err
-	}
-	return tx.Commit()
+	info += fmt.Sprintf("%f;%f;Sat=%d", gps.GPSD.Lat, gps.GPSD.Lng, gps.GPSD.Sat)
+	_, err := database.Exec(`INSERT INTO gpsList (name, conn, info) VALUES ($1, $2, $3)
+		ON CONFLICT (name)
+		DO UPDATE SET conn = $2, info = $3`,
+		gps.Name, gps.LastConnect, info)
+	return err
 }
 
 func Get(name string) (models.GPSInfo, string, error) {
