@@ -40,11 +40,13 @@ func (l *ListGPS) GetGPS(name string) (models.GPSInfo, string, bool) {
 	path := ""
 	r, ok := l.list[name]
 	if !ok {
-		var err error
-		r, path, err = db.Get(name)
-		if err == nil {
-			ok = true
-			l.list[name] = r
+		if db.UseDB {
+			var err error
+			r, path, err = db.Get(name)
+			if err == nil {
+				ok = true
+				l.list[name] = r
+			}
 		}
 	}
 	return r, path, ok
