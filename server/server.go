@@ -124,7 +124,7 @@ func (srv *Server) CountAllConn() int {
 
 //Shutdown close server
 func (srv *Server) Shutdown() {
-	countForStop := 10
+	countForStop := 4
 	srv.InShutdown = true
 	mylog.Info(1, srv.Addr+" is shutting down...")
 
