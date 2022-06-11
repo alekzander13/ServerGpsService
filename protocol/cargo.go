@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"ServerGpsService/gpslist"
-	"ServerGpsService/hash"
 	"ServerGpsService/models"
 	"ServerGpsService/utils"
 )
@@ -78,10 +77,12 @@ func (T *Cargo) ParcePacket(input []byte, gpslist *gpslist.ListGPS) error {
 			T.GPS.GPSD = temp.GPSD
 		}
 
-		T.GPS.Response = []byte{0, 0, 0, 1}
+		T.GPS.Response = []byte{1} //0, 0, 0, 1
 		T.GPS.LastError = ""
 		return nil
 	}
+
+	reqLen := len(T.Input)
 
 	must := []byte{0, 0, 0, 0}
 	have := make([]byte, 4)
@@ -100,19 +101,26 @@ func (T *Cargo) ParcePacket(input []byte, gpslist *gpslist.ListGPS) error {
 
 	T.Input = T.Input[8:]
 
-	origByteCRC := T.Input[lenPacket:]
+	//origByteCRC := T.Input[lenPacket:]
 
 	T.Input = T.Input[:lenPacket]
 
-	origCRC, err := strconv.ParseUint(hex.EncodeToString(origByteCRC), 16, 64)
-	if err != nil {
-		return T.returnError("error parse crc packet " + err.Error())
-	}
+	/*
+		origCRC, err := strconv.ParseUint(hex.EncodeToString(origByteCRC), 16, 64)
+		if err != nil {
+			return T.returnError("error parse crc packet " + err.Error())
+		}
 
-	dataCRC := hash.CheckSumCRC16(T.Input)
+		dataCRC := hash.CheckSumCRC16(T.Input)
 
-	if origCRC != uint64(dataCRC) {
-		return T.returnError(fmt.Sprintf("error crc sum: origCRC= %d, dataCRC= %d\n", origCRC, dataCRC))
+
+			if origCRC != uint64(dataCRC) {
+				return T.returnError(fmt.Sprintf("error crc sum: origCRC= %d, dataCRC= %d\n", origCRC, dataCRC))
+			}
+	*/
+
+	if reqLen-int(lenPacket) != 12 {
+		return T.returnError(fmt.Sprintf("error len pack: lenpack= %d, reqlen= %d\n", lenPacket, reqLen))
 	}
 
 	CodecID := hex.EncodeToString([]byte{T.Input[0]})
