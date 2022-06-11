@@ -40,7 +40,7 @@ func AddToLog(name string, info interface{}) {
 
 	date := time.Now().Local().Format("02.01.06 15:04:05 ")
 
-	fmt.Fprintln(f, date, info)
+	fmt.Fprint(f, date, info, "\r\n")
 }
 
 func GetPathWhereExe() string {
@@ -75,6 +75,7 @@ func MakePortsFromSlice(ps []string) ([]string, error) {
 				return nil, err
 			}
 			res = append(res, r...)
+			continue
 		}
 		if strings.Contains(p, ":") {
 			r, err := makeSlicePort(strings.Split(p, ":"))
@@ -82,6 +83,7 @@ func MakePortsFromSlice(ps []string) ([]string, error) {
 				return nil, err
 			}
 			res = append(res, r...)
+			continue
 		}
 		port, err := strconv.Atoi(p)
 		if err != nil {
